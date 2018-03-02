@@ -3,7 +3,9 @@ title: Animals
 version: v1
 baseUri: https://api.github.com
 schemas:
-   - Cats: |
+    - Dog: !include model/Dog.schema.json
+      DogList: !include model/DogList.schema.json
+      Cats: |
              <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
               <xs:element name="Cats">
                <xs:complexType>
@@ -30,6 +32,18 @@ schemas:
                </xs:complexType>
               </xs:element>
              </xs:schema>
+/dogs:
+  get:
+    responses:
+      201:
+        body:
+         application/json:
+          schema: Dog
+      200:
+        body:
+         application/json:
+          schema: DogList
+
 /animals:
     put:
         body:
