@@ -35,7 +35,7 @@ gradle.taskGraph.whenReady { taskGraph ->
     }
 }
 
-if (System.getenv("gradleSonatype") != null) {
+if (System.getProperty("gradleSonatype") != null) {
     println "signing: enabled"
     apply plugin: 'signing'
     apply plugin: 'io.codearte.nexus-staging'
