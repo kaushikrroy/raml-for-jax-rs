@@ -44,8 +44,8 @@ if (System.getProperty("gradleSonatype") != null) {
     }
     nexusStaging {
         packageGroup = 'org.raml'
-        numberOfRetries = 30
-        delayBetweenRetriesInMillis = 4000
+        numberOfRetries = 60
+        delayBetweenRetriesInMillis = 2000
         username = System.getenv("OSSRH_USER")
         password = System.getenv("OSSRH_PASSWORD")
     }
