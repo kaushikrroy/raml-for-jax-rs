@@ -43,7 +43,7 @@ if (System.getProperty("gradleSonatype") != null) {
         sign configurations.archives
     }
     nexusStaging {
-        packageGroup = 'org.raml.jaxrs'
+        packageGroup = 'org.raml'
         username = System.getenv("OSSRH_USER")
         password = System.getenv("OSSRH_PASSWORD")
     }
