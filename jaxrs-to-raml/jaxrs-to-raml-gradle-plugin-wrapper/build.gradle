@@ -125,9 +125,11 @@ task javadocJar(type: Jar) {
 }
 */
 
+/*
 artifacts {
   archives
 }
+*/
 
 publishing {
     repositories {
