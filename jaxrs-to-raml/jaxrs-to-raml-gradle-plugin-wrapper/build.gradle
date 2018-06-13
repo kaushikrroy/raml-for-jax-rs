@@ -126,7 +126,7 @@ task javadocJar(type: Jar) {
 */
 
 artifacts {
-  archives javadocJar, sourcesJar
+  archives
 }
 
 publishing {
