@@ -47,6 +47,7 @@ if (System.getProperty("gradleSonatype") != null) {
     }
 */
     nexusStaging {
+        packageGroup = 'org.raml'
         username = System.getenv("OSSRH_USER")
         password = System.getenv("OSSRH_PASSWORD")
     }
