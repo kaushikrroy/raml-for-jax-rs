@@ -14,7 +14,7 @@ deploy:
     -
         provider: script
         script:
-          - cd jaxrs-to-raml/jaxrs-to-raml-gradle-plugin-wrapper; gradle -i  -DartifactVersion=3.0.2 -DgradleSonatype=true clean install uploadArchives closeAndReleaseRepository
+          - cd jaxrs-to-raml/jaxrs-to-raml-gradle-plugin-wrapper; gradle  -DartifactVersion=3.0.2 -DgradleSonatype=true clean install uploadArchives closeAndReleaseRepository --info
         skip_cleanup: true
         on:
             repo: mulesoft-labs/raml-for-jax-rs
