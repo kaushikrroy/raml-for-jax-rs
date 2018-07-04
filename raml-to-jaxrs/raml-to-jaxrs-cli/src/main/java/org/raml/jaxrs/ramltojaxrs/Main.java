@@ -71,7 +71,7 @@ public class Main {
       RamlScanner scanner = new RamlScanner(configuration);
 
       for (String ramlFile : ramlFiles) {
-          scanner.handle(new File(ramlFile));
+        scanner.handle(new File(ramlFile));
       }
 
     } catch (ParseException e) {
