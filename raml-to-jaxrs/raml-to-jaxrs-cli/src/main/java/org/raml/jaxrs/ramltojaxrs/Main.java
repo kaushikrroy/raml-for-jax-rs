@@ -71,17 +71,7 @@ public class Main {
       RamlScanner scanner = new RamlScanner(configuration);
 
       for (String ramlFile : ramlFiles) {
-
-        URLClassLoader ucl =
-            new URLClassLoader(new URL[] {new File(ramlFile).getParentFile().toURL()}, Main.class.getClassLoader());
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        try {
-          Thread.currentThread().setContextClassLoader(ucl);
           scanner.handle(new File(ramlFile));
-        } finally {
-
-          Thread.currentThread().setContextClassLoader(loader);
-        }
       }
 
     } catch (ParseException e) {

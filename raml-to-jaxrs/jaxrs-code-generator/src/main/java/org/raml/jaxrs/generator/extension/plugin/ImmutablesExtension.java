@@ -33,8 +33,7 @@ public class ImmutablesExtension extends AllTypesPluginHelper {
                                        final TypeSpec.Builder incoming,
                                        final EventType eventType) {
     if (eventType == EventType.INTERFACE) {
-      incoming.addAnnotation(AnnotationSpec.builder(
-                                                    ClassName.get("org.immutables.value", "Value.Immutable")).build());
+      incoming.addAnnotation(AnnotationSpec.builder(Value.Immutable.class).build());
       incoming.addAnnotation(AnnotationSpec.builder(JsonDeserializer.class)
           .addMember("as", "Immutable" + ramlType.name() + ".class").build());
     }

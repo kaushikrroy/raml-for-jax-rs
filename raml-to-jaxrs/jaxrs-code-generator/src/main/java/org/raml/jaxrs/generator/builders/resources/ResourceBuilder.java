@@ -15,6 +15,8 @@
  */
 package org.raml.jaxrs.generator.builders.resources;
 
+import com.codahale.metrics.annotation.ExceptionMetered;
+import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
@@ -36,6 +38,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import javax.lang.model.element.Modifier;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
@@ -155,6 +158,10 @@ public class ResourceBuilder implements ResourceGenerator {
                                       }, gMethod)
             .onMethod(new ResourceContextImpl(build),
                       gMethod, null, methodSpec);
+
+    // Codahale metrics.
+    methodSpec.addAnnotation(ExceptionMetered.class); // TODO: @kroy added.
+    methodSpec.addAnnotation(Timed.class); // TODO: @kroy added.
     // handleMethodConsumer(methodSpec, ramlTypeToMediaType, null); // TODO: @kroy removed.
 
     if (methodSpec != null) {
@@ -218,7 +225,7 @@ public class ResourceBuilder implements ResourceGenerator {
     } else {
 
       TypeName typeName = gRequest.type().defaultJavaTypeName(build.getModelPackage());
-      methodSpec.addParameter(ParameterSpec.builder(typeName, "entity").build());
+      methodSpec.addParameter(ParameterSpec.builder(typeName, "entity").addAnnotation(NotNull.class).build());
     }
   }
 
