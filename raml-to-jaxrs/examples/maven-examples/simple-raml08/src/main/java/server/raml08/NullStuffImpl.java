@@ -15,15 +15,8 @@
  */
 package server.raml08;
 
-import example.simpleraml08.NullStuff;
-
 /**
  * Created. There, you have it.
  */
-public class NullStuffImpl implements NullStuff {
-
-  @Override
-  public PutNullStuffResponse putNullStuff() {
-    return null;
-  }
+public class NullStuffImpl {
 }

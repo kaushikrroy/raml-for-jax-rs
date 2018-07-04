@@ -15,101 +15,10 @@
  */
 package server.humanity;
 
-import example.model.*;
-import example.types.Humans;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+//import example.types.Humans;
 
 /**
  * Created by Jean-Philippe Belanger on 11/11/16. Just potential zeroes and ones
  */
-public class HumanityImpl implements Humans {
-
-  @Override
-  public GetHumansResponse getHumans(String type) {
-    List<Human> humans = new ArrayList<>();
-    PersonImpl pi = new PersonImpl();
-    pi.setActualGender(Gender.FEMALE);
-    pi.setWeight(180);
-
-    pi.setDateOfBirth(new Date());
-    pi.setInstantOfBirth(new Date());
-    pi.setTimeOfArrival(new Date());
-    pi.setDateOfBirth(new Date());
-    pi.setTimeOfBirth(new Date());
-    pi.setRequestTime(new Date());
-
-    CorpseImpl ci = new CorpseImpl();
-    ci.setDateOfDeath(new Date());
-    pi.setSiblings(Collections.<Human>singletonList(ci));
-    pi.setLimbs(new LimbImpl(new ArmImpl()));
-
-    CorpseImpl another = new CorpseImpl();
-    another.setActualGender(Gender.OTHER);
-    another.setDateOfDeath(new Date());
-
-    humans.add(pi);
-    humans.add(another);
-
-    return GetHumansResponse.respond200WithApplicationJson(humans,
-                                                           GetHumansResponse.headersFor200().withBoo("MyBoo"));
-  }
-
-  @Override
-  public GetHumansByIdResponse getHumansById(String id, String type) {
-    if ("person".equals(type)) {
-
-      PersonImpl pi = new PersonImpl();
-      pi.setActualGender(Gender.FEMALE);
-      pi.setWeight(180);
-
-      pi.setDateOfBirth(new Date());
-      pi.setInstantOfBirth(new Date());
-      pi.setTimeOfArrival(new Date());
-      pi.setDateOfBirth(new Date());
-      pi.setTimeOfBirth(new Date());
-      pi.setRequestTime(new Date());
-
-      CorpseImpl ci = new CorpseImpl();
-      ci.setDateOfDeath(new Date());
-      pi.setSiblings(Collections.<Human>singletonList(ci));
-      pi.setLimbs(new LimbImpl(new ArmImpl()));
-      return GetHumansByIdResponse.respond200WithApplicationJson(pi);
-    } else {
-
-      CorpseImpl ci = new CorpseImpl();
-      ci.setActualGender(Gender.OTHER);
-      ci.setDateOfDeath(new Date());
-      return GetHumansByIdResponse.respond200WithApplicationJson(ci);
-    }
-  }
-
-  @Override
-  public GetHumansPersonByIdResponse getHumansPersonById(String id, String type) {
-    PersonImpl pi = new PersonImpl();
-    pi.setActualGender(Gender.FEMALE);
-    pi.setWeight(180);
-
-    pi.setDateOfBirth(new Date());
-    pi.setInstantOfBirth(new Date());
-    pi.setTimeOfArrival(new Date());
-    pi.setDateOfBirth(new Date());
-    pi.setTimeOfBirth(new Date());
-    pi.setRequestTime(new Date());
-
-    CorpseImpl ci = new CorpseImpl();
-    ci.setDateOfDeath(new Date());
-    pi.setSiblings(Collections.<Human>singletonList(ci));
-    pi.setLimbs(new LimbImpl(new ArmImpl()));
-    return GetHumansPersonByIdResponse.respond200WithApplicationJson(pi);
-  }
-
-  @Override
-  public PutHumansByIdResponse putHumansById(String id, Human entity) {
-
-    return PutHumansByIdResponse.respond200(PutHumansByIdResponse.headersFor200().withSomeOtherHeader("Blah"));
-  }
+public class HumanityImpl {
 }

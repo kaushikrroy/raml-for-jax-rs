@@ -32,6 +32,7 @@ import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 import org.raml.v2.api.model.v10.methods.Method;
 import org.raml.v2.api.model.v10.resources.Resource;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import javax.lang.model.element.Modifier;
@@ -154,7 +155,7 @@ public class ResourceBuilder implements ResourceGenerator {
                                       }, gMethod)
             .onMethod(new ResourceContextImpl(build),
                       gMethod, null, methodSpec);
-    handleMethodConsumer(methodSpec, ramlTypeToMediaType, null);
+    // handleMethodConsumer(methodSpec, ramlTypeToMediaType, null); // TODO: @kroy removed.
 
     if (methodSpec != null) {
       typeSpec.addMethod(methodSpec.build());
@@ -169,7 +170,7 @@ public class ResourceBuilder implements ResourceGenerator {
 
     createParamteter(methodSpec, gRequest, gMethod);
 
-    handleMethodConsumer(methodSpec, ramlTypeToMediaType, gRequest.type());
+    // handleMethodConsumer(methodSpec, ramlTypeToMediaType, gRequest.type()); // TODO: @kroy removed.
 
     methodSpec =
         build
@@ -241,211 +242,135 @@ public class ResourceBuilder implements ResourceGenerator {
   }
 
   // TODO: @kroy - We don't need this method at all.
-  /*private Map<String, TypeSpec.Builder> createResponseClass(TypeSpec.Builder typeSpec, Multimap<GMethod, GRequest> bodies,
-                                                            Multimap<GMethod, GResponse> responses) {
-
-    Map<String, TypeSpec.Builder> map = new HashMap<>();
-
-    Set<GMethod> allMethods = new HashSet<>();
-    allMethods.addAll(bodies.keySet());
-    allMethods.addAll(responses.keySet());
-    for (GMethod gMethod : allMethods) {
-
-      if (gMethod.responses().size() == 0) {
-
-        continue;
-      }
-
-      String defaultName = Names.responseClassName(gMethod.resource(), gMethod);
-      TypeSpec.Builder responseClass = TypeSpec
-          .classBuilder(defaultName)
-          .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-          .superclass(ClassName.get(build.getSupportPackage(), "ResponseDelegate"))
-          .addMethod(
-                     MethodSpec.constructorBuilder()
-                         .addParameter(javax.ws.rs.core.Response.class, "response")
-                         .addParameter(Object.class, "entity")
-                         .addModifiers(Modifier.PRIVATE)
-                         .addCode("super(response, entity);\n").build()
-          ).addMethod(
-                      MethodSpec.constructorBuilder()
-                          .addParameter(javax.ws.rs.core.Response.class, "response")
-                          .addModifiers(Modifier.PRIVATE)
-                          .addCode("super(response);\n").build()
-          );;
-
-
-      map.put(defaultName, null);
-
-      TypeSpec currentClass = responseClass.build();
-      for (GResponse gResponse : responses.get(gMethod)) {
-
-        if (gResponse == null) {
-          continue;
-        }
-
-        TypeSpec internalClassForHeaders = null;
-        if (!gResponse.headers().isEmpty()) {
-
-          internalClassForHeaders = buildHeadersForResponse(responseClass, gResponse.headers(), gResponse.code());
-        }
-
-        if (gResponse.body().size() == 0) {
-          String httpCode = gResponse.code();
-          MethodSpec.Builder builder = MethodSpec.methodBuilder("respond" + httpCode);
-          builder
-              .addModifiers(Modifier.STATIC, Modifier.PUBLIC)
-              .returns(TypeVariableName.get(currentClass.name));
-
-          if (internalClassForHeaders == null) {
-
-            builder.addStatement("Response.ResponseBuilder responseBuilder = Response.status(" + httpCode + ")")
-                .addStatement("return new $N(responseBuilder.build())", currentClass);
-
-          } else {
-
-            builder.addParameter(ParameterSpec.builder(ClassName.get("", internalClassForHeaders.name), "headers").build())
-                .addStatement("Response.ResponseBuilder responseBuilder = Response.status(" + httpCode + ")")
-                .addStatement("responseBuilder = headers.toResponseBuilder(responseBuilder)")
-                .addStatement("return new $N(responseBuilder.build())", currentClass);
-          }
-
-
-          builder =
-              build
-                  .pluginsForResponseMethod(new Function<Collection<ResponseMethodExtension<GResponse>>, ResponseMethodExtension<GResponse>>() {
-
-                                              @Nullable
-                                              @Override
-                                              public ResponseMethodExtension<GResponse> apply(@Nullable Collection<ResponseMethodExtension<GResponse>> responseMethodExtensions) {
-                                                return new ResponseMethodExtension.Composite(responseMethodExtensions);
-                                              }
-                                            }, gResponse)
-                  .onMethod(new ResourceContextImpl(build),
-                            gResponse, builder);
-
-
-          if (builder == null) {
-            continue;
-          }
-
-          responseClass.addMethod(builder.build());
-        } else {
-          for (GResponseType responseType : gResponse.body()) {
-
-            String httpCode = gResponse.code();
-            MethodSpec.Builder builder =
-                MethodSpec.methodBuilder(
-                                         Names.methodName("respond", httpCode, "With", responseType.mediaType()))
-                    .addModifiers(Modifier.STATIC, Modifier.PUBLIC);
-
-            builder
-                .returns(TypeVariableName.get(currentClass.name));
-
-            TypeName typeName = createResponseParameter(responseType, builder);
-
-            if (internalClassForHeaders != null) {
-
-              builder.addParameter(ParameterSpec.builder(ClassName.get("", internalClassForHeaders.name), "headers").build());
-            }
-
-            builder.addStatement("Response.ResponseBuilder responseBuilder = Response.status(" + httpCode
-                + ").header(\"Content-Type\", \""
-                + responseType.mediaType() + "\")");
-
-            if (responseType.type() == null) {
-
-              if (internalClassForHeaders == null) {
-                builder
-                    .addStatement("responseBuilder.entity(null)")
-                    .addStatement("return new $N(responseBuilder.build(), null)", currentClass);
-              } else {
-
-                builder
-                    .addStatement("responseBuilder.entity(null)")
-                    .addStatement("headers.toResponseBuilder(responseBuilder)")
-                    .addStatement("return new $N(responseBuilder.build(), null)", currentClass);
-              }
-            } else {
-
-              if (responseType.type().isArray()) {
-
-                if (internalClassForHeaders == null) {
-                  builder
-                      .addStatement("$T<$T> wrappedEntity = new $T<$T>(entity){}", GenericEntity.class, typeName,
-                                    GenericEntity.class, typeName)
-                      .addStatement("responseBuilder.entity(wrappedEntity)")
-                      .addStatement("return new $N(responseBuilder.build(), wrappedEntity)", currentClass);
-                } else {
-
-                  builder.addStatement("$T<$T> wrappedEntity = new $T<$T>(entity){}", GenericEntity.class, typeName,
-                                       GenericEntity.class, typeName)
-                      .addStatement("headers.toResponseBuilder(responseBuilder)")
-                      .addStatement("responseBuilder.entity(wrappedEntity)")
-                      .addStatement("return new $N(responseBuilder.build(), wrappedEntity)", currentClass);
-                }
-              } else {
-
-                if (internalClassForHeaders == null) {
-                  builder
-                      .addStatement("responseBuilder.entity(entity)")
-                      .addStatement("return new $N(responseBuilder.build(), entity)", currentClass);
-                } else {
-
-                  builder
-                      .addStatement("responseBuilder.entity(entity)")
-                      .addStatement("headers.toResponseBuilder(responseBuilder)")
-                      .addStatement("return new $N(responseBuilder.build(), entity)", currentClass);
-                }
-              }
-            }
-
-            builder =
-                build
-                    .pluginsForResponseMethod(new Function<Collection<ResponseMethodExtension<GResponse>>, ResponseMethodExtension<GResponse>>() {
-
-                                                @Nullable
-                                                @Override
-                                                public ResponseMethodExtension<GResponse> apply(@Nullable Collection<ResponseMethodExtension<GResponse>> responseMethodExtensions) {
-                                                  return new ResponseMethodExtension.Composite(responseMethodExtensions);
-                                                }
-                                              }, gResponse)
-                    .onMethod(new ResourceContextImpl(build),
-                              gResponse, builder);
-
-            if (builder == null) {
-              continue;
-            }
-            responseClass.addMethod(builder.build());
-          }
-        }
-      }
-
-      responseClass =
-          build
-              .pluginsForResponseClass(new Function<Collection<ResponseClassExtension<GMethod>>, ResponseClassExtension<GMethod>>() {
-
-                                         @Nullable
-                                         @Override
-                                         public ResponseClassExtension<GMethod> apply(@Nullable Collection<ResponseClassExtension<GMethod>> responseClassExtensions) {
-                                           return new ResponseClassExtension.Composite(responseClassExtensions);
-                                         }
-                                       }, gMethod)
-              .onResponseClass(new ResourceContextImpl(build),
-                               gMethod, responseClass);
-
-      if (responseClass == null) {
-
-        map.put(defaultName, null);
-        continue;
-      }
-
-      map.put(defaultName, responseClass);
-      typeSpec.addType(responseClass.build());
-    }
-
-    return map;
-  }*/
+  /*
+   * private Map<String, TypeSpec.Builder> createResponseClass(TypeSpec.Builder typeSpec, Multimap<GMethod, GRequest> bodies,
+   * Multimap<GMethod, GResponse> responses) {
+   * 
+   * Map<String, TypeSpec.Builder> map = new HashMap<>();
+   * 
+   * Set<GMethod> allMethods = new HashSet<>(); allMethods.addAll(bodies.keySet()); allMethods.addAll(responses.keySet()); for
+   * (GMethod gMethod : allMethods) {
+   * 
+   * if (gMethod.responses().size() == 0) {
+   * 
+   * continue; }
+   * 
+   * String defaultName = Names.responseClassName(gMethod.resource(), gMethod); TypeSpec.Builder responseClass = TypeSpec
+   * .classBuilder(defaultName) .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+   * .superclass(ClassName.get(build.getSupportPackage(), "ResponseDelegate")) .addMethod( MethodSpec.constructorBuilder()
+   * .addParameter(javax.ws.rs.core.Response.class, "response") .addParameter(Object.class, "entity")
+   * .addModifiers(Modifier.PRIVATE) .addCode("super(response, entity);\n").build() ).addMethod( MethodSpec.constructorBuilder()
+   * .addParameter(javax.ws.rs.core.Response.class, "response") .addModifiers(Modifier.PRIVATE)
+   * .addCode("super(response);\n").build() );;
+   * 
+   * 
+   * map.put(defaultName, null);
+   * 
+   * TypeSpec currentClass = responseClass.build(); for (GResponse gResponse : responses.get(gMethod)) {
+   * 
+   * if (gResponse == null) { continue; }
+   * 
+   * TypeSpec internalClassForHeaders = null; if (!gResponse.headers().isEmpty()) {
+   * 
+   * internalClassForHeaders = buildHeadersForResponse(responseClass, gResponse.headers(), gResponse.code()); }
+   * 
+   * if (gResponse.body().size() == 0) { String httpCode = gResponse.code(); MethodSpec.Builder builder =
+   * MethodSpec.methodBuilder("respond" + httpCode); builder .addModifiers(Modifier.STATIC, Modifier.PUBLIC)
+   * .returns(TypeVariableName.get(currentClass.name));
+   * 
+   * if (internalClassForHeaders == null) {
+   * 
+   * builder.addStatement("Response.ResponseBuilder responseBuilder = Response.status(" + httpCode + ")")
+   * .addStatement("return new $N(responseBuilder.build())", currentClass);
+   * 
+   * } else {
+   * 
+   * builder.addParameter(ParameterSpec.builder(ClassName.get("", internalClassForHeaders.name), "headers").build())
+   * .addStatement("Response.ResponseBuilder responseBuilder = Response.status(" + httpCode + ")")
+   * .addStatement("responseBuilder = headers.toResponseBuilder(responseBuilder)")
+   * .addStatement("return new $N(responseBuilder.build())", currentClass); }
+   * 
+   * 
+   * builder = build .pluginsForResponseMethod(new Function<Collection<ResponseMethodExtension<GResponse>>,
+   * ResponseMethodExtension<GResponse>>() {
+   * 
+   * @Nullable
+   * 
+   * @Override public ResponseMethodExtension<GResponse> apply(@Nullable Collection<ResponseMethodExtension<GResponse>>
+   * responseMethodExtensions) { return new ResponseMethodExtension.Composite(responseMethodExtensions); } }, gResponse)
+   * .onMethod(new ResourceContextImpl(build), gResponse, builder);
+   * 
+   * 
+   * if (builder == null) { continue; }
+   * 
+   * responseClass.addMethod(builder.build()); } else { for (GResponseType responseType : gResponse.body()) {
+   * 
+   * String httpCode = gResponse.code(); MethodSpec.Builder builder = MethodSpec.methodBuilder( Names.methodName("respond",
+   * httpCode, "With", responseType.mediaType())) .addModifiers(Modifier.STATIC, Modifier.PUBLIC);
+   * 
+   * builder .returns(TypeVariableName.get(currentClass.name));
+   * 
+   * TypeName typeName = createResponseParameter(responseType, builder);
+   * 
+   * if (internalClassForHeaders != null) {
+   * 
+   * builder.addParameter(ParameterSpec.builder(ClassName.get("", internalClassForHeaders.name), "headers").build()); }
+   * 
+   * builder.addStatement("Response.ResponseBuilder responseBuilder = Response.status(" + httpCode +
+   * ").header(\"Content-Type\", \"" + responseType.mediaType() + "\")");
+   * 
+   * if (responseType.type() == null) {
+   * 
+   * if (internalClassForHeaders == null) { builder .addStatement("responseBuilder.entity(null)")
+   * .addStatement("return new $N(responseBuilder.build(), null)", currentClass); } else {
+   * 
+   * builder .addStatement("responseBuilder.entity(null)") .addStatement("headers.toResponseBuilder(responseBuilder)")
+   * .addStatement("return new $N(responseBuilder.build(), null)", currentClass); } } else {
+   * 
+   * if (responseType.type().isArray()) {
+   * 
+   * if (internalClassForHeaders == null) { builder .addStatement("$T<$T> wrappedEntity = new $T<$T>(entity){}",
+   * GenericEntity.class, typeName, GenericEntity.class, typeName) .addStatement("responseBuilder.entity(wrappedEntity)")
+   * .addStatement("return new $N(responseBuilder.build(), wrappedEntity)", currentClass); } else {
+   * 
+   * builder.addStatement("$T<$T> wrappedEntity = new $T<$T>(entity){}", GenericEntity.class, typeName, GenericEntity.class,
+   * typeName) .addStatement("headers.toResponseBuilder(responseBuilder)") .addStatement("responseBuilder.entity(wrappedEntity)")
+   * .addStatement("return new $N(responseBuilder.build(), wrappedEntity)", currentClass); } } else {
+   * 
+   * if (internalClassForHeaders == null) { builder .addStatement("responseBuilder.entity(entity)")
+   * .addStatement("return new $N(responseBuilder.build(), entity)", currentClass); } else {
+   * 
+   * builder .addStatement("responseBuilder.entity(entity)") .addStatement("headers.toResponseBuilder(responseBuilder)")
+   * .addStatement("return new $N(responseBuilder.build(), entity)", currentClass); } } }
+   * 
+   * builder = build .pluginsForResponseMethod(new Function<Collection<ResponseMethodExtension<GResponse>>,
+   * ResponseMethodExtension<GResponse>>() {
+   * 
+   * @Nullable
+   * 
+   * @Override public ResponseMethodExtension<GResponse> apply(@Nullable Collection<ResponseMethodExtension<GResponse>>
+   * responseMethodExtensions) { return new ResponseMethodExtension.Composite(responseMethodExtensions); } }, gResponse)
+   * .onMethod(new ResourceContextImpl(build), gResponse, builder);
+   * 
+   * if (builder == null) { continue; } responseClass.addMethod(builder.build()); } } }
+   * 
+   * responseClass = build .pluginsForResponseClass(new Function<Collection<ResponseClassExtension<GMethod>>,
+   * ResponseClassExtension<GMethod>>() {
+   * 
+   * @Nullable
+   * 
+   * @Override public ResponseClassExtension<GMethod> apply(@Nullable Collection<ResponseClassExtension<GMethod>>
+   * responseClassExtensions) { return new ResponseClassExtension.Composite(responseClassExtensions); } }, gMethod)
+   * .onResponseClass(new ResourceContextImpl(build), gMethod, responseClass);
+   * 
+   * if (responseClass == null) {
+   * 
+   * map.put(defaultName, null); continue; }
+   * 
+   * map.put(defaultName, responseClass); typeSpec.addType(responseClass.build()); }
+   * 
+   * return map; }
+   */
 
   private TypeName createResponseParameter(GResponseType responseType, MethodSpec.Builder builder) {
 
@@ -552,8 +477,6 @@ public class ResourceBuilder implements ResourceGenerator {
               .build());
     }
 
-    methodSpec.addStatement("return Response.ok().build()"); // TODO: @kroy - need to return null for response.
-
     buildNewWebMethod(gMethod, methodSpec);
 
 
@@ -572,7 +495,7 @@ public class ResourceBuilder implements ResourceGenerator {
     if (gMethod.responses().size() != 0) {
       TypeSpec.Builder responseSpecForMethod = responseSpec.get(Names.responseClassName(gMethod.resource(), gMethod));
       if (responseSpecForMethod == null) {
-
+        methodSpec.addStatement("return Response.ok().build()"); // TODO: @kroy - need to return null for response.
         methodSpec.returns(ClassName.get(Response.class));
       } else {
         methodSpec.returns(ClassName.get("", responseSpecForMethod.build().name));
@@ -581,10 +504,10 @@ public class ResourceBuilder implements ResourceGenerator {
       methodSpec.returns(ClassName.VOID);
     }
 
-    /* if (mediaTypesForMethod.size() > 0) {
-      AnnotationSpec.Builder ann = buildAnnotation(mediaTypesForMethod, Produces.class);
-      methodSpec.addAnnotation(ann.build());
-    } */
+    /*
+     * if (mediaTypesForMethod.size() > 0) { AnnotationSpec.Builder ann = buildAnnotation(mediaTypesForMethod, Produces.class);
+     * methodSpec.addAnnotation(ann.build()); }
+     */
     return methodSpec;
   }
 
@@ -662,13 +585,19 @@ public class ResourceBuilder implements ResourceGenerator {
           .addModifiers(Modifier.PUBLIC)
           // TODO @kroy - adding two more annotations.
           .addAnnotation(AnnotationSpec.builder(Consumes.class)
-                  .addMember("value", "\"" + MediaType.APPLICATION_JSON + "\"")
-                  .build())
+              .addMember("value", "\"" + MediaType.APPLICATION_JSON + "\"")
+              .build())
           .addAnnotation(AnnotationSpec.builder(Produces.class)
-                  .addMember("value", "\"" + MediaType.APPLICATION_JSON + "\"")
-                  .build())
+              .addMember("value", "\"" + MediaType.APPLICATION_JSON + "\"")
+              .build())
           .addAnnotation(AnnotationSpec.builder(Path.class)
               .addMember("value", "$S", uri).build());
+
+      CodeBlock.Builder logger =
+          CodeBlock.builder().add("org.slf4j.LoggerFactory.getLogger(" + Names.typeName(name) + "Resource.class)");
+      FieldSpec loggerField =
+          FieldSpec.builder(Logger.class, "LOG", Modifier.PRIVATE, Modifier.STATIC).initializer(logger.build()).build();
+      typeSpec.addField(loggerField);
 
       buildResource(typeSpec, topResource);
 

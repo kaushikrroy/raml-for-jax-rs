@@ -15,58 +15,8 @@
  */
 package server.zoo;
 
-import example.model.*;
-import example.resources.Animals;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by Jean-Philippe Belanger on 2/21/17. Just potential zeroes and ones
  */
-public class AnimalsImpl implements Animals {
-
-  @Override
-  public GetAnimalsResponse getAnimals(String type) {
-
-    AnimalImpl animal = new AnimalImpl();
-    animal.setGender(Gender.FEMALE);
-    animal.setAnimalType("Dog");
-
-    List<Animal> animals = new ArrayList<>();
-    animals.add(animal);
-    return GetAnimalsResponse.respond200WithApplicationXml(animals);
-  }
-
-  @Override
-  public GetAnimalsByIdResponse getAnimalsById(String id) {
-    AnimalImpl animal = new AnimalImpl();
-    animal.setGender(Gender.FEMALE);
-    animal.setAnimalType("Dog");
-
-    AnimalImpl cat = new AnimalImpl();
-    cat.setGender(Gender.FEMALE);
-    cat.setAnimalType("Cat");
-
-    InsectImpl insect = new InsectImpl();
-    insect.setGender(Gender.OTHER);
-    insect.setAnimalType("Insect");
-    insect.setIcky(true);
-
-    List<Animal> animals = new ArrayList<>();
-    animals.add(cat);
-    animals.add(insect);
-
-    animal.setMother(insect);
-    animal.setSiblings(animals);
-
-    animal.setAncestor(new AncestorImpl(insect));
-
-    return GetAnimalsByIdResponse.respond200WithApplicationXml(animal);
-  }
-
-  @Override
-  public PutAnimalsByIdResponse putAnimalsById(String id, Animal entity) {
-    return null;
-  }
+public class AnimalsImpl {
 }

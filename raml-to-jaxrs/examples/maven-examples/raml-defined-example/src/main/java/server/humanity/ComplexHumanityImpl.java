@@ -15,74 +15,8 @@
  */
 package server.humanity;
 
-import example.model.*;
-import example.types.Complexhumans;
-
-import java.util.Collections;
-import java.util.Date;
-
 /**
  * @author JP
  */
-public class ComplexHumanityImpl implements Complexhumans {
-
-  @Override
-  public GetComplexhumansByIdResponse getComplexhumansById(HumanId id) {
-
-    if ("person".equals(id.getType())) {
-
-      PersonImpl pi = new PersonImpl();
-      pi.setActualGender(Gender.FEMALE);
-      pi.setWeight(180);
-
-      pi.setDateOfBirth(new Date());
-      pi.setInstantOfBirth(new Date());
-      pi.setTimeOfArrival(new Date());
-      pi.setDateOfBirth(new Date());
-      pi.setTimeOfBirth(new Date());
-      pi.setRequestTime(new Date());
-
-      CorpseImpl ci = new CorpseImpl();
-      ci.setDateOfDeath(new Date());
-      pi.setSiblings(Collections.<Human>singletonList(ci));
-      pi.setLimbs(new LimbImpl(new ArmImpl()));
-      return GetComplexhumansByIdResponse.respond200WithApplicationJson(pi);
-    } else {
-
-      CorpseImpl ci = new CorpseImpl();
-      ci.setActualGender(Gender.OTHER);
-      ci.setDateOfDeath(new Date());
-      return GetComplexhumansByIdResponse.respond200WithApplicationJson(ci);
-    }
-  }
-
-  @Override
-  public GetComplexhumansResponse getComplexhumans(HumanId id) {
-
-    if ("person".equals(id.getType())) {
-
-      PersonImpl pi = new PersonImpl();
-      pi.setActualGender(Gender.FEMALE);
-      pi.setWeight(180);
-
-      pi.setDateOfBirth(new Date());
-      pi.setInstantOfBirth(new Date());
-      pi.setTimeOfArrival(new Date());
-      pi.setDateOfBirth(new Date());
-      pi.setTimeOfBirth(new Date());
-      pi.setRequestTime(new Date());
-
-      CorpseImpl ci = new CorpseImpl();
-      ci.setDateOfDeath(new Date());
-      pi.setSiblings(Collections.<Human>singletonList(ci));
-      pi.setLimbs(new LimbImpl(new ArmImpl()));
-      return GetComplexhumansResponse.respond200WithApplicationJson(pi);
-    } else {
-
-      CorpseImpl ci = new CorpseImpl();
-      ci.setActualGender(Gender.OTHER);
-      ci.setDateOfDeath(new Date());
-      return GetComplexhumansResponse.respond200WithApplicationJson(ci);
-    }
-  }
+public class ComplexHumanityImpl {
 }
