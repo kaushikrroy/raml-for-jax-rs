@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 import javax.lang.model.element.Modifier;
 import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -88,7 +89,9 @@ public class ResourceBuilder implements ResourceGenerator {
     Multimap<GMethod, GResponse> responses = ArrayListMultimap.create();
     ResourceUtils.fillInBodiesAndResponses(currentResource, incomingBodies, responses);
 
-    Map<String, TypeSpec.Builder> responseSpecs = createResponseClass(typeSpec, incomingBodies, responses);
+    // TODO: @kroy - We don't need response builders.
+    // Map<String, TypeSpec.Builder> responseSpecs = createResponseClass(typeSpec, incomingBodies, responses);
+    Map<String, TypeSpec.Builder> responseSpecs = Collections.emptyMap();
 
     for (GMethod gMethod : currentResource.methods()) {
 
@@ -237,7 +240,8 @@ public class ResourceBuilder implements ResourceGenerator {
     return mediaTypes;
   }
 
-  private Map<String, TypeSpec.Builder> createResponseClass(TypeSpec.Builder typeSpec, Multimap<GMethod, GRequest> bodies,
+  // TODO: @kroy - We don't need this method at all.
+  /*private Map<String, TypeSpec.Builder> createResponseClass(TypeSpec.Builder typeSpec, Multimap<GMethod, GRequest> bodies,
                                                             Multimap<GMethod, GResponse> responses) {
 
     Map<String, TypeSpec.Builder> map = new HashMap<>();
@@ -441,7 +445,7 @@ public class ResourceBuilder implements ResourceGenerator {
     }
 
     return map;
-  }
+  }*/
 
   private TypeName createResponseParameter(GResponseType responseType, MethodSpec.Builder builder) {
 
@@ -502,7 +506,7 @@ public class ResourceBuilder implements ResourceGenerator {
                                                  Map<String, TypeSpec.Builder> responseSpec) {
 
     MethodSpec.Builder methodSpec = MethodSpec.methodBuilder(methodName)
-        .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC);
+        .addModifiers(Modifier.PUBLIC);
 
 
     for (GParameter parameter : ResourceUtils.accumulateUriParameters(gMethod.resource())) {
@@ -548,6 +552,8 @@ public class ResourceBuilder implements ResourceGenerator {
               .build());
     }
 
+    methodSpec.addStatement("return Response.ok().build()"); // TODO: @kroy - need to return null for response.
+
     buildNewWebMethod(gMethod, methodSpec);
 
 
@@ -575,10 +581,10 @@ public class ResourceBuilder implements ResourceGenerator {
       methodSpec.returns(ClassName.VOID);
     }
 
-    if (mediaTypesForMethod.size() > 0) {
+    /* if (mediaTypesForMethod.size() > 0) {
       AnnotationSpec.Builder ann = buildAnnotation(mediaTypesForMethod, Produces.class);
       methodSpec.addAnnotation(ann.build());
-    }
+    } */
     return methodSpec;
   }
 
@@ -652,8 +658,15 @@ public class ResourceBuilder implements ResourceGenerator {
     @Override
     public TypeSpec.Builder onResource(ResourceContext context, GResource resource, TypeSpec.Builder nullSpec) {
 
-      TypeSpec.Builder typeSpec = TypeSpec.interfaceBuilder(Names.typeName(name))
+      TypeSpec.Builder typeSpec = TypeSpec.classBuilder(Names.typeName(name) + "Resource")
           .addModifiers(Modifier.PUBLIC)
+          // TODO @kroy - adding two more annotations.
+          .addAnnotation(AnnotationSpec.builder(Consumes.class)
+                  .addMember("value", "\"" + MediaType.APPLICATION_JSON + "\"")
+                  .build())
+          .addAnnotation(AnnotationSpec.builder(Produces.class)
+                  .addMember("value", "\"" + MediaType.APPLICATION_JSON + "\"")
+                  .build())
           .addAnnotation(AnnotationSpec.builder(Path.class)
               .addMember("value", "$S", uri).build());
 

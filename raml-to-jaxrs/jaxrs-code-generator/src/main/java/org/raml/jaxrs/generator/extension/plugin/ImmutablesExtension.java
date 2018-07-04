@@ -1,0 +1,28 @@
+package org.raml.jaxrs.generator.extension.plugin;
+
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeSpec;
+import org.immutables.value.Value;
+import org.raml.ramltopojo.EventType;
+import org.raml.ramltopojo.extensions.AllTypesPluginHelper;
+import org.raml.ramltopojo.extensions.ObjectPluginContext;
+import org.raml.v2.api.model.v10.datamodel.ObjectTypeDeclaration;
+
+public class ImmutablesExtension extends AllTypesPluginHelper {
+    @Override
+    public TypeSpec.Builder classCreated(final ObjectPluginContext objectPluginContext,
+                                         final ObjectTypeDeclaration ramlType,
+                                         final TypeSpec.Builder incoming,
+                                         final EventType eventType) {
+        if (eventType == EventType.INTERFACE) {
+            incoming.addAnnotation(AnnotationSpec.builder(
+                    ClassName.get("org.immutables.value", "Value.Immutable")).build());
+            incoming.addAnnotation(AnnotationSpec.builder(JsonDeserializer.class)
+                    .addMember("as", "Immutable" + ramlType.name() + ".class").build());
+        }
+
+        return incoming;
+    }
+}

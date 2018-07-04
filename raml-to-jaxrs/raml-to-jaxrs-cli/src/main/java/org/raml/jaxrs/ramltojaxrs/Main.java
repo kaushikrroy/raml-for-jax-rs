@@ -64,7 +64,8 @@ public class Main {
       configuration.setJsonMapper(AnnotationStyle.valueOf(jsonMapper.or("jackson2").toUpperCase()));
 
       if (extensions != null) {
-        configuration.setTypeConfiguration(extensions.split(("\\s*,\\s*")));
+        String[] split = extensions.split(("\\s*,\\s*"));
+        configuration.setTypeConfiguration(split);
       }
 
       RamlScanner scanner = new RamlScanner(configuration);
