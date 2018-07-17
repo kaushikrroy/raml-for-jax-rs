@@ -28,9 +28,10 @@ import java.util.Map;
  */
 public class Configuration {
 
-
   private String modelPackage;
-  private File outputDirectory;
+  private File projectDirectory;
+  private File modelOutputDirectory;
+  private File resourceOutputDirectory;
   private AnnotationStyle jsonMapper;
   private Map<String, String> jsonMapperConfiguration = new HashMap<>();
   private String[] typeConfiguration = new String[0];
@@ -90,36 +91,58 @@ public class Configuration {
   }
 
   public void setTypeConfiguration(String[] typeConfiguration) {
-
     this.typeConfiguration = typeConfiguration;
   }
 
-  public File getOutputDirectory() {
-    return outputDirectory;
+  public File getProjectDirectory() {
+    return projectDirectory;
   }
 
-  public void setOutputDirectory(File outputDirectory) {
-    this.outputDirectory = outputDirectory;
+  public void setProjectDirectory(File projectDirectory) {
+    this.projectDirectory = projectDirectory;
+    final String absolutePath = this.projectDirectory.getAbsolutePath();
+
+    String projectName;
+
+    if (absolutePath.endsWith(File.separator)) {
+      final String trimmedPath = absolutePath.substring(0, absolutePath.length() - 1);
+      projectName = trimmedPath.substring(trimmedPath.lastIndexOf(File.separatorChar) + 1);
+    } else {
+      projectName = absolutePath.substring(absolutePath.lastIndexOf(File.separatorChar) + 1);
+    }
+
+    this.modelOutputDirectory = new File(absolutePath + File.separator + projectName +
+        "-api" + File.separator + "src" + File.separator + "main" + File.separator + "java");
+
+    this.resourceOutputDirectory = new File(absolutePath + File.separator + projectName +
+        "-service" + File.separator + "src" + File.separator + "main" + File.separator + "java");
   }
+
+  /*
+   * public static void main(final String[] args) { File f = new File("/Users/kroy/Workspace/id/"); final String absolutePath =
+   * f.getAbsolutePath();
+   * 
+   * if (absolutePath.endsWith(File.separator)) { final String trimmedPath = absolutePath.substring(0, absolutePath.length() - 1);
+   * final String projectName = trimmedPath.substring(trimmedPath.lastIndexOf(File.separatorChar) + 1);
+   * System.out.println(projectName); } else { final String projectName =
+   * absolutePath.substring(absolutePath.lastIndexOf(File.separatorChar) + 1); System.out.println(projectName); } }
+   */
 
   public static Configuration defaultConfiguration() {
-
     Configuration configuration = new Configuration();
     configuration.setModelPackage("model");
     configuration.setResourcePackage("resource");
     configuration.setSupportPackage("support");
-    configuration.setOutputDirectory(new File("."));
+    configuration.setProjectDirectory(new File("."));
     // configuration.setJsonMapper(AnnotationStyle.valueOf(jsonMapper.toUpperCase()));
     // configuration.setJsonMapperConfiguration(jsonMapperConfiguration);
     configuration.setTypeConfiguration(new String[] {"jackson"});
-
     return configuration;
 
   }
 
 
-  public GenerationConfig createJsonSchemaGenerationConfig()
-  {
+  public GenerationConfig createJsonSchemaGenerationConfig() {
     return new RamlToJaxRSGenerationConfig(jsonMapper, jsonMapperConfiguration);
   }
 
@@ -137,5 +160,13 @@ public class Configuration {
 
   public Class<GlobalResourceExtension> getDefaultFinishExtension() {
     return defaultFinishExtension;
+  }
+
+  public File getModelOutputDirectory() {
+    return new File(modelOutputDirectory.getAbsolutePath());
+  }
+
+  public File getResourceOutputDirectory() {
+    return new File(resourceOutputDirectory.getAbsolutePath());
   }
 }

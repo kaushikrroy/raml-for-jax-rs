@@ -36,7 +36,7 @@ dependencies {
 
 jaxrstoraml {
     inputPath = file("build/classes/main")
-    outputDirectory = file("build")
+    projectDirectory = file("build")
     sourceDirectory = file('src/main/java')
     ramlFileName = file("build/api.raml")
 }
@@ -48,7 +48,7 @@ The Gradle plugin supports the following configuration options, defined via the 
 |Property|Description|Required|
 |:-------|:----------|--------|
 |**inputPath**|The path to the directory containing JAX-RS class files.|**Yes**|
-|**outputDirectory**|The output directory for the generated RAML files.|**Yes**|
+|**projectDirectory**|The output directory for the generated RAML files.|**Yes**|
 |**sourceDirectory**|The path to the directory containing JAX-RS class files.|**Yes**|
 |**ramlFileName**|Generated RAML file.|**Yes**|
 |**translatedAnnotations**|List of translated annotations that should be translated|No|

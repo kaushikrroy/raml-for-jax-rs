@@ -68,7 +68,7 @@
                             <goal>jaxrstoraml</goal>
                         </goals>
                         <configuration>
-                            <input>${project.build.outputDirectory}</input>
+                            <input>${project.build.projectDirectory}</input>
                             <outputFileName>${project.artifactId}.raml</outputFileName>
                             <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                         </configuration>

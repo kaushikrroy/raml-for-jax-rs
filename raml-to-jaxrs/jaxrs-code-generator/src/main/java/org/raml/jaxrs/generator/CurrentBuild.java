@@ -139,12 +139,13 @@ public class CurrentBuild {
     return configuration.getSupportPackage();
   }
 
-  public void generate(final File rootDirectory) throws IOException {
+  public void generate(final Configuration configuration) throws IOException {
 
     try {
-      if (resources.size() > 0) {
-        ResponseSupport.buildSupportClasses(rootDirectory, getSupportPackage());
-      }
+      // TODO: @kroy we don't need support classes.
+      /*
+       * if (resources.size() > 0) { ResponseSupport.buildSupportClasses(rootDirectory, getSupportPackage()); }
+       */
 
       for (TypeGenerator typeGenerator : builtTypes.values()) {
 
@@ -155,13 +156,14 @@ public class CurrentBuild {
 
             @Override
             public void into(ResultingPojos g) throws IOException {
-              g.createFoundTypes(rootDirectory.getAbsolutePath());
+              g.createFoundTypes(configuration.getModelOutputDirectory().getAbsolutePath()); // TODO: @kroy changed to api folder.
             }
           });
         }
         if (typeGenerator instanceof JavaPoetTypeGenerator) {
 
-          buildTypeTree(rootDirectory, (JavaPoetTypeGenerator) typeGenerator);
+          buildTypeTree(configuration.getModelOutputDirectory(), (JavaPoetTypeGenerator) typeGenerator); // TODO: @kroy changed to
+                                                                                                         // api folder.
           continue;
         }
 
@@ -172,7 +174,7 @@ public class CurrentBuild {
             @Override
             public void into(JCodeModel g) throws IOException {
 
-              g.build(rootDirectory);
+              g.build(configuration.getModelOutputDirectory()); // TODO: @kroy changed to api folder.
             }
           });
         }
@@ -186,7 +188,7 @@ public class CurrentBuild {
           @Override
           public void into(TypeSpec g) throws IOException {
             JavaFile.Builder file = JavaFile.builder(getResourcePackage(), g).skipJavaLangImports(true);
-            file.build().writeTo(rootDirectory);
+            file.build().writeTo(configuration.getResourceOutputDirectory()); // TODO: @kroy changed to service folder.
           }
         });
       }
@@ -199,7 +201,7 @@ public class CurrentBuild {
           public void into(TypeSpec.Builder g) throws IOException {
 
             JavaFile.Builder file = JavaFile.builder(getSupportPackage(), g.build()).skipJavaLangImports(true);
-            file.build().writeTo(rootDirectory);
+            file.build().writeTo(configuration.getResourceOutputDirectory()); // TODO: @kroy changed to service folder.
           }
         });
       }

@@ -24,8 +24,6 @@ import org.raml.jaxrs.generator.RamlScanner;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.List;
 
 /**
@@ -60,7 +58,7 @@ public class Main {
       configuration.setModelPackage(modelDir);
       configuration.setResourcePackage(resourceDir);
       configuration.setSupportPackage(supportDir);
-      configuration.setOutputDirectory(new File(directory));
+      configuration.setProjectDirectory(new File(directory));
       configuration.setJsonMapper(AnnotationStyle.valueOf(jsonMapper.or("jackson2").toUpperCase()));
 
       if (extensions != null) {

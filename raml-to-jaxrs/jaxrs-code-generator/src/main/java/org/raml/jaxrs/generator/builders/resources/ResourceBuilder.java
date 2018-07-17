@@ -502,7 +502,8 @@ public class ResourceBuilder implements ResourceGenerator {
     if (gMethod.responses().size() != 0) {
       TypeSpec.Builder responseSpecForMethod = responseSpec.get(Names.responseClassName(gMethod.resource(), gMethod));
       if (responseSpecForMethod == null) {
-        methodSpec.addStatement("return Response.ok().build()"); // TODO: @kroy - need to return null for response.
+        methodSpec.addStatement("return Response.ok().entity(\"<Your entity here>\").build()"); // TODO: @kroy - need to return
+                                                                                                // null for response.
         methodSpec.returns(ClassName.get(Response.class));
       } else {
         methodSpec.returns(ClassName.get("", responseSpecForMethod.build().name));

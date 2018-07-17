@@ -27,8 +27,8 @@ the project for RAML generation.
 
 Here are the configuration options:
 - `input` - The input is the directory where to fetch the target classes.
-  it defaults to `${project.build.outputDirectory}`
-- `outputDirectory` - The output directory is where the generated RAML file will
+  it defaults to `${project.build.projectDirectory}`
+- `projectDirectory` - The output directory is where the generated RAML file will
   be located. It defaults to `${project.build.sourceDirectory}`
 - `outputFileName` - The output file name is how the resulting RAML file will be named.
   This defaults to `${project.artifactId}.raml`

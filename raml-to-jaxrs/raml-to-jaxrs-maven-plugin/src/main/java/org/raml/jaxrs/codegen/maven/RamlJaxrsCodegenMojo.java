@@ -176,7 +176,7 @@ public class RamlJaxrsCodegenMojo extends AbstractMojo {
       configuration.setModelPackage(modelPackage);
       configuration.setResourcePackage(resourcePackage);
       configuration.setSupportPackage(supportPackage);
-      configuration.setOutputDirectory(outputDirectory);
+      configuration.setProjectDirectory(outputDirectory);
       configuration.setJsonMapper(AnnotationStyle.valueOf(jsonMapper.toUpperCase()));
       configuration.setJsonMapperConfiguration(jsonMapperConfiguration);
       configuration.setTypeConfiguration(generateTypesWith);

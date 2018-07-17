@@ -65,7 +65,7 @@
                     <mainClass>org.raml.jaxrs.cli.Main</mainClass>
                     <arguments>
                         <argument>-a</argument>
-                        <argument>${project.build.outputDirectory}</argument>
+                        <argument>${project.build.projectDirectory}</argument>
                         <argument>-o</argument>
                         <argument>${project.artifactId}.raml</argument>
                         <argument>-s</argument>
@@ -92,7 +92,7 @@
                             <goal>jaxrstoraml</goal>
                         </goals>
                         <configuration>
-                            <input>${project.build.outputDirectory}</input>
+                            <input>${project.build.projectDirectory}</input>
                             <outputFileName>${project.artifactId}.raml</outputFileName>
                             <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                             <translatedAnnotations>

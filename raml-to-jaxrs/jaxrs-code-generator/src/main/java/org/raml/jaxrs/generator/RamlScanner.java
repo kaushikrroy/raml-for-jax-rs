@@ -81,7 +81,7 @@ public class RamlScanner {
       resourceHandler.handle(resource);
     }
 
-    build.generate(configuration.getOutputDirectory());
+    build.generate(configuration);
   }
 
 
@@ -104,7 +104,7 @@ public class RamlScanner {
       resourceHandler.handle(typeFinder.globalSchemas().keySet(), registry, resource);
     }
 
-    build.generate(configuration.getOutputDirectory());
+    build.generate(configuration);
   }
 
 }

@@ -36,7 +36,7 @@ dependencies {
 
 ramltojaxrs {
     sourceDirectory = file('src/main/resources')
-    outputDirectory = new File(buildDir,'generated')
+    projectDirectory = new File(buildDir,'generated')
     supportPackageName = 'org.raml.test.gen'
     resourcePackageName = 'org.raml.test.res'
     modelPackageName = 'org.raml.test.model'
@@ -49,7 +49,7 @@ The Gradle plugin supports the following configuration options, defined via the 
 |Property|Description|Required|
 |:-------|:----------|--------|
 |**sourceDirectory**|The path to the directory containing source .raml files|**Yes**|
-|**outputDirectory**|The output directory for the generated JAX-RS resource source files.|**Yes**|
+|**projectDirectory**|The output directory for the generated JAX-RS resource source files.|**Yes**|
 |**supportPackageName**|The package used for support classes.|**Yes**|
 |**resourcePackageName**|The package used for resource classes.|**Yes**|
 |**modelPackageName**|The package used for type classes.|**Yes**|
